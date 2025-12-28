@@ -1,0 +1,18 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Função auxiliar para verificar dono
+    function isOwner(email) {
+      return request.auth != null && request.auth.token.email == email;
+    }
+
+    // Regras por coleção
+    match /users/{email} { allow read, write: if isOwner(email); }
+    match /categories/{document} { allow create, read, update, delete: if isOwner(resource.data.ownerEmail) || isOwner(request.resource.data.ownerEmail); }
+    match /credit_cards/{document} { allow create, read, update, delete: if isOwner(resource.data.ownerEmail) || isOwner(request.resource.data.ownerEmail); }
+    match /transactions/{document} { allow create, read, update, delete: if isOwner(resource.data.ownerEmail) || isOwner(request.resource.data.ownerEmail); }
+    match /investments/{document} { allow create, read, update, delete: if isOwner(resource.data.ownerEmail) || isOwner(request.resource.data.ownerEmail); }
+    match /dividends/{document} { allow create, read, update, delete: if isOwner(resource.data.ownerEmail) || isOwner(request.resource.data.ownerEmail); }
+  }
+}
