@@ -7,7 +7,8 @@ const withPWA = require('next-pwa')({
 });
 
 const nextConfig = {
-  turbopack: {}, // 👈 ESSENCIAL
+  output: 'standalone', // 👈 Adicione esta linha para Docker
+  turbopack: {},
 };
 
 module.exports = withPWA(nextConfig);

@@ -19,6 +19,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import Link from "next/link";
 import { BarChart3 } from "lucide-react";
+import { db } from "@/lib/firebase";
+
+console.log("Firestore:", db);
 
 import {
     Form,
