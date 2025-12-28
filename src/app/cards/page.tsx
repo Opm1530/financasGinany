@@ -33,6 +33,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { CreditCard as ICreditCard } from "@/types";
 
+// 👇 CORREÇÃO: Usando string().pipe() para converter corretamente
 const formSchema = z.object({
     name: z.string().min(2, "Nome muito curto"),
     limit: z.number().min(0.01, "Limite deve ser positivo"),
