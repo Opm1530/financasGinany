@@ -13,10 +13,7 @@ import {
     DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
 import {
     Form,
     FormControl,
@@ -33,15 +30,12 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { CreditCard as ICreditCard } from "@/types";
 
-// 👇 CORREÇÃO: Usando string().pipe() para converter corretamente
-const formSchema = z.object({
-    name: z.string().min(2, "Nome muito curto"),
-    limit: z.string().pipe(z.coerce.number().min(0.01, "Limite deve ser positivo")),
-    closingDay: z.string().pipe(z.coerce.number().min(1).max(31, "Dia inválido (1-31)")),
-    dueDay: z.string().pipe(z.coerce.number().min(1).max(31, "Dia inválido (1-31)")),
-});
-
-type CardFormValues = z.infer<typeof formSchema>;
+type CardFormValues = {
+    name: string;
+    limit: number;
+    closingDay: number;
+    dueDay: number;
+};
 
 export default function CardsPage() {
     const { cards, addCard, updateCard, deleteCard } = useCreditCards();
@@ -49,7 +43,6 @@ export default function CardsPage() {
     const [editingCard, setEditingCard] = useState<ICreditCard | null>(null);
 
     const form = useForm<CardFormValues>({
-        resolver: zodResolver(formSchema),
         defaultValues: {
             name: "",
             limit: 0,
@@ -59,6 +52,24 @@ export default function CardsPage() {
     });
 
     const onSubmit = async (values: CardFormValues) => {
+        // Validação manual
+        if (values.name.length < 2) {
+            form.setError("name", { message: "Nome muito curto" });
+            return;
+        }
+        if (values.limit < 0.01) {
+            form.setError("limit", { message: "Limite deve ser positivo" });
+            return;
+        }
+        if (values.closingDay < 1 || values.closingDay > 31) {
+            form.setError("closingDay", { message: "Dia inválido (1-31)" });
+            return;
+        }
+        if (values.dueDay < 1 || values.dueDay > 31) {
+            form.setError("dueDay", { message: "Dia inválido (1-31)" });
+            return;
+        }
+
         try {
             if (editingCard) {
                 await updateCard(editingCard.id, values);
@@ -133,7 +144,13 @@ export default function CardsPage() {
                                         <FormItem>
                                             <FormLabel>Limite Total (R$)</FormLabel>
                                             <FormControl>
-                                                <Input type="number" step="0.01" {...field} className="bg-zinc-950 border-zinc-800 focus-visible:ring-emerald-500" />
+                                                <Input 
+                                                    type="number" 
+                                                    step="0.01"
+                                                    value={field.value}
+                                                    onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                                                    className="bg-zinc-950 border-zinc-800 focus-visible:ring-emerald-500" 
+                                                />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -147,7 +164,14 @@ export default function CardsPage() {
                                             <FormItem>
                                                 <FormLabel>Dia Fechamento</FormLabel>
                                                 <FormControl>
-                                                    <Input type="number" min="1" max="31" {...field} className="bg-zinc-950 border-zinc-800 focus-visible:ring-emerald-500" />
+                                                    <Input 
+                                                        type="number" 
+                                                        min="1" 
+                                                        max="31"
+                                                        value={field.value}
+                                                        onChange={(e) => field.onChange(parseInt(e.target.value) || 1)}
+                                                        className="bg-zinc-950 border-zinc-800 focus-visible:ring-emerald-500" 
+                                                    />
                                                 </FormControl>
                                                 <FormMessage />
                                             </FormItem>
@@ -160,7 +184,14 @@ export default function CardsPage() {
                                             <FormItem>
                                                 <FormLabel>Dia Vencimento</FormLabel>
                                                 <FormControl>
-                                                    <Input type="number" min="1" max="31" {...field} className="bg-zinc-950 border-zinc-800 focus-visible:ring-emerald-500" />
+                                                    <Input 
+                                                        type="number" 
+                                                        min="1" 
+                                                        max="31"
+                                                        value={field.value}
+                                                        onChange={(e) => field.onChange(parseInt(e.target.value) || 1)}
+                                                        className="bg-zinc-950 border-zinc-800 focus-visible:ring-emerald-500" 
+                                                    />
                                                 </FormControl>
                                                 <FormMessage />
                                             </FormItem>
@@ -180,7 +211,6 @@ export default function CardsPage() {
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                 {cards.map((card) => (
                     <Card key={card.id} className="relative overflow-hidden rounded-[2rem] border-0 bg-gradient-to-br from-zinc-800 to-zinc-900 ring-1 ring-white/10 group shadow-lg hover:shadow-2xl transition-all hover:scale-[1.02]">
-                        {/* Ambient Background for Card */}
                         <div className="absolute right-0 top-0 h-32 w-32 translate-x-12 -translate-y-12 rounded-full bg-emerald-500/20 blur-3xl group-hover:bg-emerald-500/30 transition-colors" />
 
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
