@@ -36,9 +36,9 @@ import { CreditCard as ICreditCard } from "@/types";
 // 👇 CORREÇÃO: Usando string().pipe() para converter corretamente
 const formSchema = z.object({
     name: z.string().min(2, "Nome muito curto"),
-    limit: z.number().min(0.01, "Limite deve ser positivo"),
-    closingDay: z.number().min(1).max(31, "Dia inválido (1-31)"),
-    dueDay: z.number().min(1).max(31, "Dia inválido (1-31)"),
+    limit: z.string().pipe(z.coerce.number().min(0.01, "Limite deve ser positivo")),
+    closingDay: z.string().pipe(z.coerce.number().min(1).max(31, "Dia inválido (1-31)")),
+    dueDay: z.string().pipe(z.coerce.number().min(1).max(31, "Dia inválido (1-31)")),
 });
 
 type CardFormValues = z.infer<typeof formSchema>;
